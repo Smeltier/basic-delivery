@@ -1,4 +1,4 @@
-package domain.order;
+package br.com.delivery.domain.order;
 
 public class CreatedState implements OrderState {
   @Override
@@ -10,8 +10,7 @@ public class CreatedState implements OrderState {
   public void pay(Order order) {
     if (order.total().isZero()) {
       throw new IllegalArgumentException(
-          "Pedido vazio não pode ser pago."
-      );
+          "Pedido vazio não pode ser pago.");
     }
     order.changeState(new PaidState());
   }
