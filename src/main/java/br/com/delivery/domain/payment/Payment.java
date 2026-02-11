@@ -1,4 +1,4 @@
-package domain.payment;
+package br.com.delivery.domain.payment;
 
 public class Payment {
   private final PaymentID id;
@@ -23,10 +23,14 @@ public class Payment {
   }
 
   public void confirm() {
-    state.confirm(this);
+    state.approve(this);
   }
 
   public void fail() {
     state.fail(this);
+  }
+
+  protected void changeState(PaymentState newState) {
+    this.state = newState;
   }
 }
