@@ -1,8 +1,10 @@
-package domain.order;
+package br.com.delivery.domain.order;
+
+import java.util.UUID;
 
 public record OrderId(UUID value) {
-  public OrderID {
-    if (value == nul) {
+  public OrderId {
+    if (value == null) {
       throw new IllegalArgumentException("Order ID não pode ser nulo.");
     }
   }
