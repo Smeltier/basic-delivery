@@ -28,12 +28,8 @@ public class Order {
     this.items = new ArrayList<>();
   }
 
-  public void addItem(Product product, int quantity) {
-    if (product == null) {
-      throw new IllegalArgumentException("Produto não pode ser nulo.");
-    }
-    Money unitPrice = product.currentPrice();
-    OrderItem item = new OrderItem(product, quantity, unitPrice);
+  public void addItem(ProductId productId, String productName, Money unitPrice, int quantity) {
+    OrderItem item = new OrderItem(productId, productName, unitPrice, quantity);
     state.addItem(this, item);
   }
 
