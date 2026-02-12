@@ -1,12 +1,11 @@
 package br.com.delivery.domain.payment;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public record PaymentId(UUID value) {
   public PaymentId {
-    if (value == null) {
-      throw new IllegalArgumentException("O valor não pode ser nulo");
-    }
+    Objects.requireNonNull(value);
   }
 
   public static PaymentId generate() {
