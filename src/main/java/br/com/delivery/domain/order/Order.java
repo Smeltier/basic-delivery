@@ -1,36 +1,39 @@
 package br.com.delivery.domain.order;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-import br.com.delivery.domain.Client;
-import br.com.delivery.domain.Product;
+import br.com.delivery.domain.client.Client;
+import br.com.delivery.domain.product.ProductId;
 import br.com.delivery.domain.shared.Money;
 import br.com.delivery.domain.shared.Currency;
+import br.com.delivery.domain.payment.PaymentId;
 
 public class Order {
   private final OrderId id;
   private final Client client;
   private final Currency currency;
   private final ArrayList<OrderItem> items;
+  private final ArrayList<PaymentId> payments;
   private OrderState state;
 
   public Order(OrderId id, Client client, Currency currency) {
-    if (id == null) {
-      throw new IllegalArgumentException("ID não pode ser nulo.");
-    }
-    if (client == null) {
-      throw new IllegalArgumentException("Cliente não pode ser nulo.");
-    }
-    this.id = id;
-    this.client = client;
-    this.currency = currency;
+    this.id = Objects.requireNonNull(id);
+    this.client = Objects.requireNonNull(client);
+    this.currency = Objects.requireNonNull(currency);
+
     this.state = new CreatedState();
     this.items = new ArrayList<>();
+    this.payments = new ArrayList<>();
   }
 
   public void addItem(ProductId productId, String productName, Money unitPrice, int quantity) {
     OrderItem item = new OrderItem(productId, productName, unitPrice, quantity);
     state.addItem(this, item);
+  }
+
+  public void addPayment(PaymentId paymentId) {
+    payments.add(paymentId);
   }
 
   public void pay() {
