@@ -1,44 +1,39 @@
-package br.com.delivery.application.usecases;
+package br.com.delivery.application.usecases.order;
 
 import br.com.delivery.domain.order.Order;
 import br.com.delivery.domain.order.OrderId;
-import br.com.delivery.domain.order.OrderRepository;
+import br.com.delivery.domain.client.ClientId;
+import br.com.delivery.domain.product.Product;
+import br.com.delivery.domain.product.ProductId;
+import br.com.delivery.domain.shared.Currency;
+import br.com.delivery.domain.repositories.OrderRepository;
+import br.com.delivery.domain.repositories.ProductRepository;
 
-import java.util.UUID;
 import java.util.Objects;
 
 public class CreateOrderUseCase {
   private final OrderRepository orderRepository;
-  private final ClientRepository clientRepository;
   private final ProductRepository productRepository;
 
-  public CreateOrderUseCase(OrderRepository orderRepository, ClientRepository clientRepository,
-      ProductRepository productRepository) {
+  public CreateOrderUseCase(OrderRepository orderRepository, ProductRepository productRepository) {
     this.orderRepository = Objects.requireNonNull(orderRepository);
     this.productRepository = Objects.requireNonNull(productRepository);
-    this.clientRepository = Objects.requireNonNull(clientRepository);
   }
 
   public OrderId execute(CreateOrderInput input) {
     ClientId clientId = new ClientId(input.clientId());
-    Client client = clientRepository.findById(clientId);
-
-    if (client == null) {
-      throw new IllegalArgumentException("Cliente não encontrado.");
-    }
+    Currency currency = input.currency();
 
     OrderId orderId = OrderId.generate();
-    Order order = new Order(orderId, clientId);
+    Order order = new Order(orderId, clientId, currency);
 
     for (ItemInput itemInput : input.items()) {
-      ProductId productId = new ProductId(itemInput.productId());
-      Product product = productRepository.findById(productId);
+      ProductId productId = itemInput.productId();
 
-      if (product == null) {
-        throw new IllegalArgumentException("Produto não encontrado.");
-      }
+      Product product = productRepository.findById(productId)
+          .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado."));
 
-      order.addItem(product.getId(), product.getName(), product.getCurrentPrice(), itemInput.quantity());
+      order.addItem(product.getId(), product.getName(), product.currentPrice(), itemInput.quantity());
     }
 
     orderRepository.save(order);
