@@ -1,24 +1,19 @@
 package br.com.delivery.domain.payment;
 
+import br.com.delivery.domain.shared.Money;
+
+import java.util.Objects;
+
 public class Payment {
-  private final PaymentID id;
+  private final PaymentId id;
   private final PaymentMethod method;
   private final Money amount;
   private PaymentState state;
 
-  public Payment(PaymentID id, PaymentMethod method, Money amount) {
-    if (id == null) {
-      throw new IllegalArgumentException("ID não pode ser nulo.");
-    }
-    if (method == null) {
-      throw new IllegalArgumentException("Método de pagamento não pode ser nulo.");
-    }
-    if (amount == null) {
-      throw new IllegalArgumentException("Valor monetário não pode ser nula");
-    }
-    this.id = id;
-    this.method = method;
-    this.amount = amount;
+  public Payment(PaymentId id, PaymentMethod method, Money amount) {
+    this.id = Objects.requireNonNull(id);
+    this.method = Objects.requireNonNull(method);
+    this.amount = Objects.requireNonNull(amount);
     this.state = new PendingState();
   }
 
@@ -27,7 +22,31 @@ public class Payment {
   }
 
   public void fail() {
-    state.fail(this);
+    state.decline(this);
+  }
+
+  public void cancel() {
+    state.cancel(this);
+  }
+
+  public void refund() {
+    state.refund(this);
+  }
+
+  public PaymentId getId() {
+    return id;
+  }
+
+  public Money getAmount() {
+    return amount;
+  }
+
+  public PaymentState getState() {
+    return state;
+  }
+
+  public PaymentMethod getMethod() {
+    return method;
   }
 
   protected void changeState(PaymentState newState) {
