@@ -1,6 +1,14 @@
 package br.com.delivery.application.usecases.order;
 
-import java.util.UUID;
+import br.com.delivery.domain.product.ProductId;
 
-public record ItemInput(UUID id, int quantity) {
+import java.util.Objects;
+
+public record ItemInput(ProductId productId, int quantity) {
+  public ItemInput {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("Quantidade não pode ser negativa.");
+    }
+    Objects.requireNonNull(productId);
+  }
 }
