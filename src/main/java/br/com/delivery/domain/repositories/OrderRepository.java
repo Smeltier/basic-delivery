@@ -1,4 +1,4 @@
-package br.com.delivery.domain.order;
+package br.com.delivery.domain.repositories;
 
 import java.util.Optional;
 
