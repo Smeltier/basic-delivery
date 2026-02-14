@@ -44,6 +44,9 @@ public class Client {
   }
 
   public void setEmail(Email newEmail) {
+    if (!this.active) {
+      throw new IllegalArgumentException("Cliente inativo.");
+    }
     if (newEmail == null) {
       throw new IllegalArgumentException("Email inválido.");
     }
@@ -51,6 +54,9 @@ public class Client {
   }
 
   public void setName(String newName) {
+    if (!this.active) {
+      throw new IllegalArgumentException("Client inativo.");
+    }
     if (newName == null || newName.isBlank()) {
       throw new IllegalArgumentException("Nome inválido");
     }
