@@ -7,15 +7,9 @@ public final class Money {
   private final BigDecimal amount;
   private final Currency currency;
 
-  private Money(BigDecimal amount, Currency currency) {
+  public Money(BigDecimal amount, Currency currency) {
     this.amount = Objects.requireNonNull(amount);
     this.currency = Objects.requireNonNull(currency);
-  }
-
-  public static Money of(BigDecimal amount, Currency currency) {
-    Objects.requireNonNull(amount);
-    Objects.requireNonNull(currency);
-    return new Money(amount, currency);
   }
 
   public static Money zero(Currency currency) {
