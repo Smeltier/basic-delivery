@@ -1,5 +1,7 @@
 package br.com.delivery.domain.client;
 
+import java.util.Objects;
+
 import br.com.delivery.domain.shared.Email;
 
 public class Client {
@@ -8,15 +10,15 @@ public class Client {
   private String name;
   private boolean active;
 
-  public Client(final ClientId id, final String name, final Email email) {
-    if (id == null) {
-      throw new IllegalArgumentException("ID não pode ser nulo.");
-    }
-    this.id = id;
-    this.active = true;
-
+  private Client(ClientId id, String name, Email email) {
+    this.id = Objects.requireNonNull(id);
     setEmail(email);
     setName(name);
+    this.active = true;
+  }
+
+  public static Client create(String name, Email email) {
+    return new Client(ClientId.generate(), name, email);
   }
 
   public boolean isActive() {
@@ -47,15 +49,12 @@ public class Client {
     if (!this.active) {
       throw new IllegalArgumentException("Cliente inativo.");
     }
-    if (newEmail == null) {
-      throw new IllegalArgumentException("Email inválido.");
-    }
-    this.email = newEmail;
+    email = Objects.requireNonNull(newEmail);
   }
 
   public void setName(String newName) {
     if (!this.active) {
-      throw new IllegalArgumentException("Client inativo.");
+      throw new IllegalArgumentException("Cliente inativo.");
     }
     if (newName == null || newName.isBlank()) {
       throw new IllegalArgumentException("Nome inválido");
