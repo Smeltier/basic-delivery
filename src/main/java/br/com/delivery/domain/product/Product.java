@@ -1,8 +1,8 @@
 package br.com.delivery.domain.product;
 
-import br.com.delivery.domain.shared.Money;
-
 import java.util.Objects;
+
+import br.com.delivery.domain.shared.Money;
 
 public class Product {
   private final ProductId id;
@@ -10,14 +10,15 @@ public class Product {
   private Money price;
   private boolean active;
 
-  public Product(ProductId id, String name, Money price) {
-    if (name.isBlank()) {
-      throw new IllegalArgumentException("Nome inválido.");
-    }
+  private Product(ProductId id, String name, Money price) {
     this.id = Objects.requireNonNull(id);
-    this.name = Objects.requireNonNull(name);
     this.price = Objects.requireNonNull(price);
+    setName(name);
     this.active = true;
+  }
+
+  public static Product create(String name, Money price) {
+    return new Product(ProductId.generate(), name, price);
   }
 
   public Money currentPrice() {
