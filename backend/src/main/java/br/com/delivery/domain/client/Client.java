@@ -3,6 +3,8 @@ package br.com.delivery.domain.client;
 import java.util.Objects;
 
 import br.com.delivery.domain.shared.Email;
+import br.com.delivery.domain.exception.InactiveClientException;
+import br.com.delivery.domain.exception.InvalidClientOperationException;
 
 public class Client {
   private final ClientId id;
@@ -12,9 +14,9 @@ public class Client {
 
   private Client(ClientId id, String name, Email email) {
     this.id = Objects.requireNonNull(id);
+    this.active = true;
     setEmail(email);
     setName(name);
-    this.active = true;
   }
 
   public static Client create(String name, Email email) {
@@ -47,17 +49,17 @@ public class Client {
 
   public void setEmail(Email newEmail) {
     if (!this.active) {
-      throw new IllegalArgumentException("Cliente inativo.");
+      throw new InactiveClientException("Cliente inativo.");
     }
     email = Objects.requireNonNull(newEmail);
   }
 
   public void setName(String newName) {
     if (!this.active) {
-      throw new IllegalArgumentException("Cliente inativo.");
+      throw new InactiveClientException("Cliente inativo.");
     }
     if (newName == null || newName.isBlank()) {
-      throw new IllegalArgumentException("Nome inválido");
+      throw new InvalidClientOperationException("Nome inválido");
     }
     this.name = newName;
   }
