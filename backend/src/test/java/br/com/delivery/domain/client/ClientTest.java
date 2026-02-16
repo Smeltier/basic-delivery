@@ -4,39 +4,45 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import br.com.delivery.domain.shared.Email;
+import br.com.delivery.domain.exception.InvalidClientOperationException;
+import br.com.delivery.domain.exception.InactiveClientException;
 
 public class ClientTest {
+  private final Email email = new Email("test@gmail.com");
+
   @Test
   void shouldStartActive() {
-    var client = new Client(ClientId.generate(), "Name", new Email("test@gmail.com"));
-
+    Client client = Client.create("Name", this.email);
     assertTrue(client.isActive());
   }
 
   @Test
-  void shouldThrowWithNullId() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new Client(null, "name", new Email("test@gmail.com")));
-  }
-
-  @Test
   void shouldThrowWithNullEmail() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new Client(ClientId.generate(), "name", null));
+    assertThrows(NullPointerException.class,
+        () -> Client.create("name", null));
   }
 
   @Test
   void shouldThrowWithBlankName() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new Client(ClientId.generate(), "", new Email("client@gmail.com")));
+    assertThrows(InvalidClientOperationException.class,
+        () -> Client.create("", this.email));
   }
 
   @Test
   void shouldThrowWhenSetNameInInactiveClient() {
-    var client = new Client(ClientId.generate(), "name", new Email("test@gmail.com"));
+    Client client = Client.create("name", this.email);
     client.deactivate();
 
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(InactiveClientException.class,
         () -> client.setName("George"));
+  }
+
+  @Test
+  void shouldThrowWhenSetEmailIninactiveClient() {
+    Client client = Client.create("name", this.email);
+    client.deactivate();
+
+    assertThrows(InactiveClientException.class,
+        () -> client.setEmail(new Email("novo@gmail.com")));
   }
 }
