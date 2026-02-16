@@ -5,7 +5,7 @@ import br.com.delivery.domain.shared.Money;
 
 import java.util.Objects;
 
-public class Payment {
+public final class Payment {
   private final PaymentId id;
   private final OrderId orderId;
   private final PaymentMethod paymentMethod;
@@ -32,9 +32,9 @@ public class Payment {
     PaymentProcessingResult result = paymentMethod.process(this);
 
     switch (result) {
-      case APPROVED -> status = PaymentStatus.APPROVED;
-      case REJECTED -> status = PaymentStatus.DECLINED;
-      case PENDING -> status = PaymentStatus.PENDING;
+      case APPROVED -> changeStatus(PaymentStatus.APPROVED);
+      case REJECTED -> changeStatus(PaymentStatus.DECLINED);
+      case PENDING -> changeStatus(PaymentStatus.PENDING);
     }
   }
 
@@ -42,14 +42,14 @@ public class Payment {
     if (status != PaymentStatus.PENDING) {
       throw new IllegalStateException("Só pagamentos pendentes podem ser processados.");
     }
-    this.status = PaymentStatus.CANCELLED;
+    changeStatus(PaymentStatus.CANCELLED);
   }
 
   public void refund() {
     if (status != PaymentStatus.APPROVED) {
       throw new IllegalStateException("Só pagamentos aprovados podem ser reembolsados.");
     }
-    this.status = PaymentStatus.REFUNDED;
+    changeStatus(PaymentStatus.REFUNDED);
   }
 
   public boolean isApproved() {
@@ -70,5 +70,9 @@ public class Payment {
 
   public PaymentStatus getStatus() {
     return status;
+  }
+
+  private void changeStatus(PaymentStatus newStatus) {
+    this.status = newStatus;
   }
 }
