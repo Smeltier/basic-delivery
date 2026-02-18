@@ -8,11 +8,11 @@ import java.util.Objects;
 public final class Payment {
   private final PaymentId id;
   private final OrderId orderId;
-  private final PaymentMethod paymentMethod;
+  private final IPaymentMethod paymentMethod;
   private final Money amount;
   private PaymentStatus status;
 
-  private Payment(PaymentId id, OrderId orderId, PaymentMethod paymentMethod, Money amount) {
+  private Payment(PaymentId id, OrderId orderId, IPaymentMethod paymentMethod, Money amount) {
     this.id = Objects.requireNonNull(id);
     this.orderId = Objects.requireNonNull(orderId);
     this.paymentMethod = Objects.requireNonNull(paymentMethod);
@@ -20,7 +20,7 @@ public final class Payment {
     this.status = PaymentStatus.PENDING;
   }
 
-  public static Payment create(OrderId orderId, PaymentMethod paymentMethod, Money amount) {
+  public static Payment create(OrderId orderId, IPaymentMethod paymentMethod, Money amount) {
     return new Payment(PaymentId.generate(), orderId, paymentMethod, amount);
   }
 
