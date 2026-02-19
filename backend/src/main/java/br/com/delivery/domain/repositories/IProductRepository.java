@@ -5,7 +5,7 @@ import java.util.Optional;
 import br.com.delivery.domain.product.Product;
 import br.com.delivery.domain.product.ProductId;
 
-public interface ProductRepository {
+public interface IProductRepository {
   Optional<Product> findById(ProductId id);
 
   void save(Product product);
