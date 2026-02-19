@@ -29,7 +29,7 @@ public class Product {
   }
 
   public void changePrice(Money newPrice) {
-    if (newPrice == null || newPrice.isNegative()) {
+    if (newPrice == null) {
       throw new IllegalArgumentException("Novo preço inválido.");
     }
     if (!this.active) {
