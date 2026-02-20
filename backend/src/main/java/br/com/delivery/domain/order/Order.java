@@ -3,6 +3,7 @@ package br.com.delivery.domain.order;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Collections;
 
 import br.com.delivery.domain.exception.InvalidOrderOperationException;
 import br.com.delivery.domain.client.ClientId;
@@ -37,9 +38,15 @@ public class Order {
     if (status != OrderStatus.CREATED) {
       throw new InvalidOrderOperationException("Não pode adicionar itens no estado " + status);
     }
-
     OrderItem item = new OrderItem(productId, productName, unitPrice, quantity);
     items.add(item);
+  }
+
+  public void removeItem(ProductId productId) {
+    if (status != OrderStatus.CREATED) {
+      throw new InvalidOrderOperationException("Não pode adicionar itens no estado " + status);
+    }
+    items.removeIf(item -> item.getProductId().equals(productId));
   }
 
   public void registerPayment(PaymentId paymentId) {
@@ -93,6 +100,10 @@ public class Order {
   }
 
   public List<PaymentId> getPayments() {
-    return payments;
+    return Collections.unmodifiableList(payments);
+  }
+
+  public List<OrderItem> getItems() {
+    return Collections.unmodifiableList(items);
   }
 }
