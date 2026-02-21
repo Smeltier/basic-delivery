@@ -36,23 +36,42 @@ public class Order {
     return new Order(OrderId.generate(), clientId, currency);
   }
 
+  public static Order restore(OrderId id, ClientId clientId, Currency currency, OrderStatus status,
+      List<OrderItem> items, List<PaymentId> payments, Address address) {
+    Order order = new Order(id, clientId, currency);
+    order.status = status;
+    order.items.addAll(items);
+    order.payments.addAll(payments);
+    order.deliveryAddress = address;
+    return order;
+  }
+
   public void addItem(ProductId productId, String productName, Money unitPrice, int quantity) {
-    ensureCanModifyItems();
+    if (status != OrderStatus.CREATED) {
+      throw new InvalidOrderOperationException("Não pode adicionar itens no status " + status);
+    }
     OrderItem item = new OrderItem(productId, productName, unitPrice, quantity);
     items.add(item);
   }
 
   public void removeItem(ProductId productId) {
-    ensureCanModifyItems();
+    if (status != OrderStatus.CREATED) {
+      throw new InvalidOrderOperationException("Não pode remover itens no status " + status);
+    }
     items.removeIf(item -> item.getProductId().equals(productId));
   }
 
   public void changeDeliveryAddress(Address newAddress) {
-    ensureCanChangeAddress();
+    if (status != OrderStatus.CREATED) {
+      throw new InvalidOrderOperationException("Não pode mudar o endereço de entrega no status " + status);
+    }
     this.deliveryAddress = Objects.requireNonNull(newAddress);
   }
 
   public void registerPayment(PaymentId paymentId) {
+    if (status != OrderStatus.CREATED) {
+      throw new InvalidOrderOperationException("Não é possível registrar pagamento no status " + status);
+    }
     Objects.requireNonNull(paymentId);
     payments.add(paymentId);
   }
@@ -69,7 +88,15 @@ public class Order {
     if (status != OrderStatus.CREATED) {
       throw new InvalidOrderOperationException("O pedido não pode ser pago no estado " + status);
     }
-    ensureIsReadyForPayment();
+    if (items.isEmpty()) {
+      throw new InvalidOrderOperationException("Pedido deve ter pelo menos um item.");
+    }
+    if (deliveryAddress == null) {
+      throw new InvalidOrderOperationException("Pedido deve ter um endereço de entrega.");
+    }
+    if (total().isZero()) {
+      throw new InvalidOrderOperationException("Pedido Não pode ter total zero.");
+    }
     status = OrderStatus.PAID;
   }
 
@@ -80,10 +107,9 @@ public class Order {
     status = OrderStatus.CONFIRMED;
   }
 
-  // TODO: permitir cancelamento antes de entregue.
   public void cancel() {
-    if (status == OrderStatus.CONFIRMED) {
-      throw new InvalidOrderOperationException("Pedidos confirmados não podem ser cancelados.");
+    if (status == OrderStatus.DELIVERED) {
+      throw new InvalidOrderOperationException("Pedidos entregues não podem ser cancelados.");
     }
     status = OrderStatus.CANCELLED;
   }
@@ -114,29 +140,5 @@ public class Order {
 
   public List<OrderItem> getItems() {
     return Collections.unmodifiableList(items);
-  }
-
-  private void ensureCanModifyItems() {
-    if (status != OrderStatus.CREATED) {
-      throw new InvalidOrderOperationException("Não pode adicionar ou remover itens no status " + status);
-    }
-  }
-
-  private void ensureCanChangeAddress() {
-    if (status != OrderStatus.CREATED) {
-      throw new InvalidOrderOperationException("Não pode mudar o endereço de entrega no status " + status);
-    }
-  }
-
-  private void ensureIsReadyForPayment() {
-    if (items.isEmpty()) {
-      throw new InvalidOrderOperationException("Pedido deve ter pelo menos um item.");
-    }
-    if (deliveryAddress == null) {
-      throw new InvalidOrderOperationException("Pedido deve ter um endereço de entrega.");
-    }
-    if (total().isZero()) {
-      throw new InvalidOrderOperationException("Pedido Não pode ter total zero.");
-    }
   }
 }
