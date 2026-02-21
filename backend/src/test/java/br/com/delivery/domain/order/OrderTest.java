@@ -3,14 +3,18 @@ package br.com.delivery.domain.order;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import br.com.delivery.domain.shared.Address;
 import br.com.delivery.domain.shared.Currency;
 import br.com.delivery.domain.shared.Money;
+import br.com.delivery.domain.shared.ZipCode;
 import br.com.delivery.domain.client.ClientId;
 import br.com.delivery.domain.exception.InvalidOrderOperationException;
 import br.com.delivery.domain.payment.PaymentId;
 import br.com.delivery.domain.product.ProductId;
 
 public class OrderTest {
+  private final Address address = new Address("rua", "123", "casa", "cidade", "país", new ZipCode("36703-072"));
+
   @Test
   void shouldCreateOrderWithCorrectValue() {
     ClientId clientId = ClientId.generate();
@@ -107,6 +111,8 @@ public class OrderTest {
   @Test
   void shouldTransitionThroughHappyPath() {
     Order order = Order.create(ClientId.generate(), Currency.CAD);
+    order.addItem(ProductId.generate(), "produto", Money.of(1.0, Currency.CAD), 1);
+    order.changeDeliveryAddress(this.address);
 
     order.markAsPaid();
     assertEquals(OrderStatus.PAID, order.getStatus());
@@ -119,7 +125,7 @@ public class OrderTest {
   @Test
   void shouldThrowWhenAddItemOutsideCreatedStatus() {
     Order order = Order.create(ClientId.generate(), Currency.CAD);
-    order.markAsPaid();
+    order.cancel();
 
     assertThrows(InvalidOrderOperationException.class,
         () -> order.addItem(ProductId.generate(), "Product", Money.of(10.0, Currency.BRL), 1));
@@ -145,10 +151,22 @@ public class OrderTest {
   @Test
   void shouldThrowWhenCancelInConfirmedStatus() {
     Order order = Order.create(ClientId.generate(), Currency.CAD);
+    order.addItem(ProductId.generate(), "produto", Money.of(1.0, Currency.CAD), 1);
+    order.changeDeliveryAddress(this.address);
+
     order.markAsPaid();
     order.confirm();
 
     assertThrows(InvalidOrderOperationException.class,
         () -> order.cancel());
+  }
+
+  @Test
+  void shouldThrowWhenChangeAddressOutsideCreatedStatus() {
+    Order order = Order.create(ClientId.generate(), Currency.BRL);
+    order.cancel();
+
+    assertThrows(InvalidOrderOperationException.class,
+        () -> order.changeDeliveryAddress(this.address));
   }
 }
